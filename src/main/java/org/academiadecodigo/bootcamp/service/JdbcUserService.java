@@ -3,10 +3,7 @@ package org.academiadecodigo.bootcamp.service;
 import org.academiadecodigo.bootcamp.model.User;
 import org.academiadecodigo.bootcamp.utils.Security;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +26,33 @@ public class JdbcUserService implements UserService{
     public boolean authenticate(String username, String password) {
 
         try {
+
+            String query = "SELECT * FROM user WHERE username=? AND password=?";
+            ResultSet resultSet;
+            String hashPassword = Security.getHash(password);
+
+
+
+            PreparedStatement statement = connection.prepareStatement(query);
+
+            statement.setString(1, username);
+            statement.setString(2, hashPassword);
+
+            resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                return true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+
+        /*
+
+        try {
             Statement statement = connection.createStatement();
             String query = "SELECT username, password from user WHERE username = '" + username + "' AND password = '" + Security.getHash(password) + "'";
             ResultSet resultSet = statement.executeQuery(query);
@@ -44,6 +68,8 @@ public class JdbcUserService implements UserService{
             e.printStackTrace();
         }
         return false;
+
+        */
     }
 
     @Override
